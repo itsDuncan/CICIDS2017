@@ -1,0 +1,1 @@
+"""Static dimension seeders for the SOC Sentinel warehouse."""
