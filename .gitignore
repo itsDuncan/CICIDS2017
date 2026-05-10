@@ -1,0 +1,38 @@
+@"
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Secrets — NEVER COMMIT
+.env
+*.pem
+*.key
+
+# Large data files
+data/raw/
+data/interim/*.duckdb
+data/interim/*.parquet
+data/external/*.mmdb
+*.csv
+*.zip
+*.tgz
+*.tar.bz2
+*.gz
+
+# Allow specific small interim files (uncomment if needed)
+!data/interim/external_ips_master.csv
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Jupyter
+.jupyter/
+"@ | Out-File -Encoding UTF8 .gitignore
+
+Get-Content .gitignore
