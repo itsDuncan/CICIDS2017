@@ -1,0 +1,25 @@
+13:09:20 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_130920.log
+13:09:22 | INFO    | etl.tracker  | ╔══ Pipeline run 6 started: cicids_to_warehouse (sample) ══╗
+13:09:22 | INFO    | etl.tracker  | ▶ Starting stage: extract
+13:09:22 | INFO    | etl.extract  | Reading stratified sample (n=10,000) from cicids_clean.parquet
+13:09:39 | INFO    | etl.extract  | Loaded 8,047 rows × 87 columns into memory
+13:09:39 | DEBUG   | etl.extract  | Schema validation passed
+13:09:39 | WARNING | etl.extract  | Dropped 1,000 invalid rows (missing timestamp or IPs)
+13:09:39 | INFO    | etl.extract  | Attack family distribution (top): {'DDoS': 1000, 'DoS': 1000, 'Botnet': 1000, 'Brute Force': 1000, 'Benign': 1000, 'Web Attack': 1000, 'Reconnaissance': 1000, 'Infiltration': 36, 'Exploit': 11}
+13:09:39 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 17.1s (rows: 0 → 7,047)
+13:09:39 | INFO    | etl.tracker  | ╚══ Pipeline run 6 SUCCESS in 17.5s ══╝
+13:10:15 | INFO    | etl.tracker  | ╔══ Pipeline run 7 started: cicids_to_warehouse (full) ══╗
+13:10:15 | INFO    | etl.tracker  | ▶ Starting stage: extract
+13:10:15 | INFO    | etl.extract  | Reading cicids_clean.parquet (293.0 MB)
+13:10:44 | INFO    | etl.extract  | Loaded 3,119,345 rows × 87 columns into memory
+13:10:44 | DEBUG   | etl.extract  | Schema validation passed
+13:10:59 | WARNING | etl.extract  | Dropped 288,602 invalid rows (missing timestamp or IPs)
+13:11:01 | INFO    | etl.extract  | Attack family distribution (top): {'Benign': 2273097, 'DoS': 252661, 'Reconnaissance': 158930, 'DDoS': 128027, 'Brute Force': 13835, 'Web Attack': 2180, 'Botnet': 1966, 'Infiltration': 36, 'Exploit': 11}
+13:11:02 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 47.0s (rows: 0 → 2,830,743)
+13:11:02 | INFO    | etl.tracker  | ╚══ Pipeline run 7 SUCCESS in 47.1s ══╝
+13:11:59 | INFO    | etl.tracker  | ╔══ Pipeline run 8 started: cicids_to_warehouse (sample) ══╗
+13:11:59 | INFO    | etl.tracker  | ▶ Starting stage: extract
+13:11:59 | ERROR   | etl.tracker  | ✗ Stage 'extract' failed after 0.0s: Cleaned CICIDS parquet not found at: does_not_exist.parquet
+Run notebooks/01_cicids2017_eda.ipynb to generate it.
+13:11:59 | ERROR   | etl.tracker  | ╚══ Pipeline run 8 FAILED: Cleaned CICIDS parquet not found at: does_not_exist.parquet
+Run notebooks/01_cicids2017_eda.ipynb to generate it. ══╝

@@ -1,0 +1,43 @@
+13:17:23 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_131723.log
+13:17:46 | INFO    | etl.tracker  | ╔══ Pipeline run 9 started: cicids_to_warehouse (sample) ══╗
+13:17:46 | INFO    | etl.tracker  | ▶ Starting stage: extract
+13:17:46 | INFO    | etl.extract  | Reading stratified sample (n=10,000) from cicids_clean.parquet
+13:18:07 | INFO    | etl.extract  | Loaded 8,047 rows × 87 columns into memory
+13:18:07 | DEBUG   | etl.extract  | Schema validation passed
+13:18:07 | WARNING | etl.extract  | Dropped 1,000 invalid rows (missing timestamp or IPs)
+13:18:07 | INFO    | etl.extract  | Attack family distribution (top): {'Benign': 1000, 'DDoS': 1000, 'DoS': 1000, 'Web Attack': 1000, 'Reconnaissance': 1000, 'Brute Force': 1000, 'Botnet': 1000, 'Infiltration': 36, 'Exploit': 11}
+13:18:07 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 20.4s (rows: 0 → 7,047)
+13:18:07 | INFO    | etl.tracker  | ▶ Starting stage: transform
+13:18:07 | INFO    | etl.transform | Transforming 7,047 rows
+13:18:07 | DEBUG   | etl.transform | Renamed 86 columns
+13:18:07 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+13:18:07 | INFO    | etl.transform | Classifying source IPs
+13:18:07 | DEBUG   | etl.transform | Classifying 152 unique IPs
+13:18:07 | INFO    | etl.transform | Classifying destination IPs
+13:18:07 | DEBUG   | etl.transform | Classifying 285 unique IPs
+13:18:07 | INFO    | etl.transform | Source IP classification: {'internal': 6549, 'external': 498}
+13:18:07 | INFO    | etl.transform | Destination IP classification: {'internal': 6025, 'external': 1022}
+13:18:07 | INFO    | etl.transform | Transform complete: 7,047 rows × 93 columns
+13:18:07 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 0.2s (rows: 7,047 → 7,047)
+13:18:07 | INFO    | etl.tracker  | ╚══ Pipeline run 9 SUCCESS in 20.8s ══╝
+13:20:00 | INFO    | etl.tracker  | ╔══ Pipeline run 10 started: cicids_to_warehouse (full) ══╗
+13:20:00 | INFO    | etl.tracker  | ▶ Starting stage: extract
+13:20:00 | INFO    | etl.extract  | Reading cicids_clean.parquet (293.0 MB)
+13:20:31 | INFO    | etl.extract  | Loaded 3,119,345 rows × 87 columns into memory
+13:20:31 | DEBUG   | etl.extract  | Schema validation passed
+13:20:41 | WARNING | etl.extract  | Dropped 288,602 invalid rows (missing timestamp or IPs)
+13:20:42 | INFO    | etl.extract  | Attack family distribution (top): {'Benign': 2273097, 'DoS': 252661, 'Reconnaissance': 158930, 'DDoS': 128027, 'Brute Force': 13835, 'Web Attack': 2180, 'Botnet': 1966, 'Infiltration': 36, 'Exploit': 11}
+13:20:42 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 42.1s (rows: 0 → 2,830,743)
+13:20:42 | INFO    | etl.tracker  | ▶ Starting stage: transform
+13:20:42 | INFO    | etl.transform | Transforming 2,830,743 rows
+13:20:44 | DEBUG   | etl.transform | Renamed 86 columns
+13:20:44 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+13:20:46 | INFO    | etl.transform | Classifying source IPs
+13:20:47 | DEBUG   | etl.transform | Classifying 17,005 unique IPs
+13:20:51 | INFO    | etl.transform | Classifying destination IPs
+13:20:52 | DEBUG   | etl.transform | Classifying 19,112 unique IPs
+13:20:54 | INFO    | etl.transform | Source IP classification: {'internal': 2467175, 'external': 363568}
+13:20:54 | INFO    | etl.transform | Destination IP classification: {'internal': 2064823, 'external': 764582, 'special': 1338}
+13:21:05 | INFO    | etl.transform | Transform complete: 2,830,743 rows × 93 columns
+13:21:05 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 22.3s (rows: 2,830,743 → 2,830,743)
+13:21:05 | INFO    | etl.tracker  | ╚══ Pipeline run 10 SUCCESS in 64.5s ══╝

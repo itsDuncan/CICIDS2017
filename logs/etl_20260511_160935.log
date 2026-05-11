@@ -1,0 +1,42 @@
+16:09:35 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_160935.log
+16:09:36 | INFO    | etl.pipeline | Starting pipeline: mode=sample, sample_size=1000, skip_enrich=True, truncate=True
+16:09:36 | INFO    | etl.tracker  | ╔══ Pipeline run 17 started: cicids_to_warehouse (sample) ══╗
+16:09:36 | INFO    | etl.tracker  | ▶ Starting stage: extract
+16:09:36 | INFO    | etl.extract  | Reading stratified sample (n=1,000) from cicids_clean.parquet
+16:09:47 | INFO    | etl.extract  | Loaded 847 rows × 87 columns into memory
+16:09:47 | DEBUG   | etl.extract  | Schema validation passed
+16:09:47 | WARNING | etl.extract  | Dropped 100 invalid rows (missing timestamp or IPs)
+16:09:47 | INFO    | etl.extract  | Attack family distribution (top): {'DDoS': 100, 'Benign': 100, 'Reconnaissance': 100, 'DoS': 100, 'Botnet': 100, 'Brute Force': 100, 'Web Attack': 100, 'Infiltration': 36, 'Exploit': 11}
+16:09:47 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 10.9s (rows: 0 → 747)
+16:09:47 | INFO    | etl.tracker  | ▶ Starting stage: transform
+16:09:47 | INFO    | etl.transform | Transforming 747 rows
+16:09:47 | DEBUG   | etl.transform | Renamed 86 columns
+16:09:47 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+16:09:47 | INFO    | etl.transform | Classifying source IPs
+16:09:47 | DEBUG   | etl.transform | Classifying 28 unique IPs
+16:09:47 | INFO    | etl.transform | Classifying destination IPs
+16:09:47 | DEBUG   | etl.transform | Classifying 48 unique IPs
+16:09:47 | INFO    | etl.transform | Source IP classification: {'internal': 704, 'external': 43}
+16:09:47 | INFO    | etl.transform | Destination IP classification: {'internal': 607, 'external': 140}
+16:09:47 | INFO    | etl.transform | Transform complete: 747 rows × 93 columns
+16:09:47 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 0.0s (rows: 747 → 747)
+16:09:47 | INFO    | etl.pipeline | ⏭️  Skipping enrich stage (--skip-enrich)
+16:09:47 | INFO    | etl.tracker  | ▶ Starting stage: load
+16:09:47 | INFO    | etl.load     | Resolving 63 distinct IPs against dim_asset
+16:09:47 | INFO    | etl.load     |   Found 19,129 existing dim_asset rows
+16:09:47 | INFO    | etl.load     |   Need to INSERT 0 new dim_asset rows
+16:09:47 | INFO    | etl.load     | Resolving 794 distinct ports against dim_port
+16:09:48 | INFO    | etl.load     |   Found 64,655 existing dim_port rows
+16:09:48 | INFO    | etl.load     |   Need to INSERT 0 new dim_port rows
+16:09:48 | INFO    | etl.load     | FK maps ready: assets=19,129, ports=64,655, attacks=16, protocols=12
+16:09:48 | INFO    | etl.load     | Applying surrogate key mappings
+16:09:48 | INFO    | etl.load     | FK resolution rates: {'src_asset_sk': np.float64(100.0), 'dest_asset_sk': np.float64(100.0), 'src_port_sk': np.float64(100.0), 'dest_port_sk': np.float64(100.0), 'attack_sk': np.float64(100.0), 'protocol_sk': np.float64(100.0)}
+16:09:48 | INFO    | etl.load     | Coercing integer columns to nullable Int64
+16:09:48 | DEBUG   | etl.load     |   Coerced 61 columns to Int64
+16:09:48 | INFO    | etl.load     | Writing 747 rows to temp CSV: C:\temp\soc_sentinel\fact_security_event.csv
+16:09:48 | INFO    | etl.load     |   CSV written in 0.1s (0.3 MB)
+16:09:48 | INFO    | etl.load     | TRUNCATE warehouse.fact_security_event
+16:09:48 | INFO    | etl.load     | COPY 0.3 MB into fact_security_event...
+16:09:48 | INFO    | etl.load     |   COPY complete: 747 rows in 0.2s (4,961 rows/sec)
+16:09:48 | INFO    | etl.tracker  | ✓ Stage 'load' completed in 1.0s (rows: 747 → 747)
+16:09:48 | INFO    | etl.tracker  | ╚══ Pipeline run 17 SUCCESS in 12.2s ══╝

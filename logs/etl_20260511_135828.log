@@ -1,0 +1,42 @@
+13:58:28 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_135828.log
+14:00:48 | INFO    | etl.tracker  | ╔══ Pipeline run 12 started: cicids_to_warehouse (sample) ══╗
+14:00:48 | INFO    | etl.tracker  | ▶ Starting stage: extract
+14:00:48 | INFO    | etl.extract  | Reading stratified sample (n=10,000) from cicids_clean.parquet
+14:01:14 | INFO    | etl.extract  | Loaded 8,047 rows × 87 columns into memory
+14:01:14 | DEBUG   | etl.extract  | Schema validation passed
+14:01:14 | WARNING | etl.extract  | Dropped 1,000 invalid rows (missing timestamp or IPs)
+14:01:14 | INFO    | etl.extract  | Attack family distribution (top): {'DDoS': 1000, 'Benign': 1000, 'Botnet': 1000, 'Brute Force': 1000, 'DoS': 1000, 'Reconnaissance': 1000, 'Web Attack': 1000, 'Infiltration': 36, 'Exploit': 11}
+14:01:14 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 26.3s (rows: 0 → 7,047)
+14:01:14 | INFO    | etl.tracker  | ▶ Starting stage: transform
+14:01:14 | INFO    | etl.transform | Transforming 7,047 rows
+14:01:14 | DEBUG   | etl.transform | Renamed 86 columns
+14:01:14 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+14:01:14 | INFO    | etl.transform | Classifying source IPs
+14:01:14 | DEBUG   | etl.transform | Classifying 170 unique IPs
+14:01:14 | INFO    | etl.transform | Classifying destination IPs
+14:01:14 | DEBUG   | etl.transform | Classifying 290 unique IPs
+14:01:15 | INFO    | etl.transform | Source IP classification: {'internal': 6518, 'external': 529}
+14:01:15 | INFO    | etl.transform | Destination IP classification: {'internal': 6042, 'external': 1005}
+14:01:15 | INFO    | etl.transform | Transform complete: 7,047 rows × 93 columns
+14:01:15 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 0.2s (rows: 7,047 → 7,047)
+14:01:15 | INFO    | etl.tracker  | ▶ Starting stage: enrich
+14:01:15 | INFO    | etl.enrich   | Found 408 distinct external IPs to enrich
+14:01:15 | INFO    | etl.enrich   | Top 408 IPs by volume account for 21.8% of external traffic
+14:01:15 | INFO    | etl.enrich   | Opening MaxMind DB: GeoLite2-City.mmdb
+14:01:15 | INFO    | etl.enrich   | GeoIP: 408 resolved, 0 not-found, 0 errors
+14:01:15 | INFO    | etl.enrich   | Querying AbuseIPDB for 408 IPs (throttled to ~10 req/s)
+14:01:45 | INFO    | etl.enrich   |   Progress: 50/408 IPs enriched
+14:02:17 | INFO    | etl.enrich   |   Progress: 100/408 IPs enriched
+14:02:46 | INFO    | etl.enrich   |   Progress: 150/408 IPs enriched
+14:03:20 | INFO    | etl.enrich   |   Progress: 200/408 IPs enriched
+14:03:58 | INFO    | etl.enrich   |   Progress: 250/408 IPs enriched
+14:04:31 | INFO    | etl.enrich   |   Progress: 300/408 IPs enriched
+14:05:00 | INFO    | etl.enrich   |   Progress: 350/408 IPs enriched
+14:05:33 | INFO    | etl.enrich   |   Progress: 400/408 IPs enriched
+14:05:41 | INFO    | etl.enrich   | AbuseIPDB: 408 IPs enriched (complete)
+14:05:41 | INFO    | etl.enrich   | Top 10 countries by IP count:
+{'US': 291, 'DE': 14, 'CA': 13, 'FR': 12, 'JP': 9, 'CN': 7, 'KR': 5, 'RU': 5, 'DK': 4, 'SG': 4}
+14:05:41 | INFO    | etl.tracker  | ✓ Stage 'enrich' completed in 266.1s (rows: 7,047 → 408)
+14:05:41 | INFO    | etl.tracker  | ▶ Starting stage: load
+14:05:41 | ERROR   | etl.tracker  | ✗ Stage 'load' failed after 0.0s: module 'src.etl.load' has no attribute 'run'
+14:05:41 | ERROR   | etl.tracker  | ╚══ Pipeline run 12 FAILED: module 'src.etl.load' has no attribute 'run' ══╝

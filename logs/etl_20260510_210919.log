@@ -1,0 +1,9 @@
+21:09:19 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260510_210919.log
+21:09:19 | INFO    | etl.tracker  | ╔══ Pipeline run 1 started: cicids_to_warehouse (test) ══╗
+21:09:19 | INFO    | etl.tracker  | ▶ Starting stage: extract
+21:09:19 | INFO    | etl.smoketest | (simulated) extracting data
+21:09:19 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 0.0s (rows: 0 → 100)
+21:09:19 | INFO    | etl.tracker  | ▶ Starting stage: transform
+21:09:19 | INFO    | etl.smoketest | (simulated) transforming data
+21:09:19 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 0.0s (rows: 100 → 100)
+21:09:19 | INFO    | etl.tracker  | ╚══ Pipeline run 1 SUCCESS in 0.1s ══╝

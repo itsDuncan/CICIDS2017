@@ -1,0 +1,10 @@
+16:16:59 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_161659.log
+16:16:59 | INFO    | etl.quality  | Running 8 quality checks
+16:16:59 | INFO    | etl.quality  |   ✓ fk_integrity_assets: expected=0, actual=0
+16:16:59 | INFO    | etl.quality  |   ✓ fk_integrity_attack_type: expected=0, actual=0
+16:16:59 | INFO    | etl.quality  |   ✓ fk_integrity_dates: expected=0, actual=0
+16:16:59 | INFO    | etl.quality  |   ⚠ attack_distribution_benign_ratio: expected=50-95%, actual=13.39%
+16:16:59 | INFO    | etl.quality  |   ✓ heartbleed_window_matches_documentation: expected=Wed 2017-07-05 15:12-15:32, actual=2017-07-05 15:12:00 to 2017-07-05 15:32:00 (11 events)
+16:16:59 | INFO    | etl.quality  |   ✓ external_ip_geo_coverage: expected=>=80%, actual=97.27% (18520/19040)
+16:16:59 | INFO    | etl.quality  |   ✓ dim_user_phase1_expectation: expected=0 in Phase 1, ~16,743 after CERT ETL, actual=0
+16:16:59 | INFO    | etl.quality  | Quality checks: 6 passed, 1 warnings, 0 errors

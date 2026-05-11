@@ -1,0 +1,54 @@
+16:17:57 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_161757.log
+16:17:58 | INFO    | etl.pipeline | Starting pipeline: mode=full, sample_size=N/A, skip_enrich=True, truncate=True
+16:17:58 | INFO    | etl.tracker  | ╔══ Pipeline run 18 started: cicids_to_warehouse (full) ══╗
+16:17:58 | INFO    | etl.tracker  | ▶ Starting stage: extract
+16:17:58 | INFO    | etl.extract  | Reading cicids_clean.parquet (293.0 MB)
+16:18:20 | INFO    | etl.extract  | Loaded 3,119,345 rows × 87 columns into memory
+16:18:20 | DEBUG   | etl.extract  | Schema validation passed
+16:18:26 | WARNING | etl.extract  | Dropped 288,602 invalid rows (missing timestamp or IPs)
+16:18:27 | INFO    | etl.extract  | Attack family distribution (top): {'Benign': 2273097, 'DoS': 252661, 'Reconnaissance': 158930, 'DDoS': 128027, 'Brute Force': 13835, 'Web Attack': 2180, 'Botnet': 1966, 'Infiltration': 36, 'Exploit': 11}
+16:18:27 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 28.2s (rows: 0 → 2,830,743)
+16:18:27 | INFO    | etl.tracker  | ▶ Starting stage: transform
+16:18:27 | INFO    | etl.transform | Transforming 2,830,743 rows
+16:18:27 | DEBUG   | etl.transform | Renamed 86 columns
+16:18:27 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+16:18:29 | INFO    | etl.transform | Classifying source IPs
+16:18:29 | DEBUG   | etl.transform | Classifying 17,005 unique IPs
+16:18:30 | INFO    | etl.transform | Classifying destination IPs
+16:18:30 | DEBUG   | etl.transform | Classifying 19,112 unique IPs
+16:18:31 | INFO    | etl.transform | Source IP classification: {'internal': 2467175, 'external': 363568}
+16:18:31 | INFO    | etl.transform | Destination IP classification: {'internal': 2064823, 'external': 764582, 'special': 1338}
+16:18:33 | INFO    | etl.transform | Transform complete: 2,830,743 rows × 93 columns
+16:18:33 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 6.0s (rows: 2,830,743 → 2,830,743)
+16:18:33 | INFO    | etl.pipeline | ⏭️  Skipping enrich stage (--skip-enrich)
+16:18:33 | INFO    | etl.tracker  | ▶ Starting stage: load
+16:18:33 | INFO    | etl.load     | Resolving 19,129 distinct IPs against dim_asset
+16:18:33 | INFO    | etl.load     |   Found 19,129 existing dim_asset rows
+16:18:34 | INFO    | etl.load     |   Need to INSERT 0 new dim_asset rows
+16:18:34 | INFO    | etl.load     | Resolving 64,650 distinct ports against dim_port
+16:18:34 | INFO    | etl.load     |   Found 64,655 existing dim_port rows
+16:18:34 | INFO    | etl.load     |   Need to INSERT 0 new dim_port rows
+16:18:34 | INFO    | etl.load     | FK maps ready: assets=19,129, ports=64,655, attacks=16, protocols=12
+16:18:34 | INFO    | etl.load     | Applying surrogate key mappings
+16:18:35 | INFO    | etl.load     | FK resolution rates: {'src_asset_sk': np.float64(100.0), 'dest_asset_sk': np.float64(100.0), 'src_port_sk': np.float64(100.0), 'dest_port_sk': np.float64(100.0), 'attack_sk': np.float64(100.0), 'protocol_sk': np.float64(100.0)}
+16:18:38 | INFO    | etl.load     | Coercing integer columns to nullable Int64
+16:19:01 | DEBUG   | etl.load     |   Coerced 61 columns to Int64
+16:19:01 | INFO    | etl.load     | Writing 2,830,743 rows to temp CSV: C:\temp\soc_sentinel\fact_security_event.csv
+16:21:13 | INFO    | etl.load     |   CSV written in 132.1s (1245.6 MB)
+16:21:13 | INFO    | etl.load     | TRUNCATE warehouse.fact_security_event
+16:21:14 | INFO    | etl.load     | COPY 1245.6 MB into fact_security_event...
+16:27:33 | INFO    | etl.load     |   COPY complete: 2,830,743 rows in 379.2s (7,466 rows/sec)
+16:27:34 | INFO    | etl.tracker  | ✓ Stage 'load' completed in 541.0s (rows: 2,830,743 → 2,830,743)
+16:27:34 | INFO    | etl.tracker  | ▶ Starting stage: quality
+16:27:34 | INFO    | etl.quality  | Running 8 quality checks
+16:27:35 | INFO    | etl.quality  |   ✓ fact_row_count_matches_loaded: expected=2830743, actual=2830743
+16:27:36 | INFO    | etl.quality  |   ✓ fk_integrity_assets: expected=0, actual=0
+16:27:37 | INFO    | etl.quality  |   ✓ fk_integrity_attack_type: expected=0, actual=0
+16:27:38 | INFO    | etl.quality  |   ✓ fk_integrity_dates: expected=0, actual=0
+16:27:40 | INFO    | etl.quality  |   ✓ attack_distribution_benign_ratio: expected=50-95%, actual=80.3%
+16:27:41 | INFO    | etl.quality  |   ✓ heartbleed_window_matches_documentation: expected=Wed 2017-07-05 15:12-15:32, actual=2017-07-05 15:12:00 to 2017-07-05 15:32:00 (11 events)
+16:27:41 | INFO    | etl.quality  |   ✓ external_ip_geo_coverage: expected=>=80%, actual=97.27% (18520/19040)
+16:27:41 | INFO    | etl.quality  |   ✓ dim_user_phase1_expectation: expected=0 in Phase 1, ~16,743 after CERT ETL, actual=0
+16:27:41 | INFO    | etl.quality  | Quality checks: 8 passed, 0 warnings, 0 errors
+16:27:41 | INFO    | etl.tracker  | ✓ Stage 'quality' completed in 7.6s (rows: 8 → 8)
+16:27:41 | INFO    | etl.tracker  | ╚══ Pipeline run 18 SUCCESS in 583.0s ══╝

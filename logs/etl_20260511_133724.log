@@ -1,0 +1,44 @@
+13:37:24 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_133724.log
+13:37:24 | INFO    | etl.enrich   | Opening MaxMind DB: GeoLite2-City.mmdb
+13:37:24 | INFO    | etl.enrich   | GeoIP: 3 resolved, 1 not-found, 0 errors
+13:38:57 | INFO    | etl.enrich   | Querying AbuseIPDB for 1 IPs (throttled to ~10 req/s)
+13:38:58 | INFO    | etl.enrich   | AbuseIPDB: 1 IPs enriched (complete)
+13:39:49 | INFO    | etl.tracker  | ╔══ Pipeline run 11 started: cicids_to_warehouse (sample) ══╗
+13:39:49 | INFO    | etl.tracker  | ▶ Starting stage: extract
+13:39:49 | INFO    | etl.extract  | Reading stratified sample (n=10,000) from cicids_clean.parquet
+13:40:12 | INFO    | etl.extract  | Loaded 8,047 rows × 87 columns into memory
+13:40:12 | DEBUG   | etl.extract  | Schema validation passed
+13:40:12 | WARNING | etl.extract  | Dropped 1,000 invalid rows (missing timestamp or IPs)
+13:40:12 | INFO    | etl.extract  | Attack family distribution (top): {'Benign': 1000, 'Reconnaissance': 1000, 'DDoS': 1000, 'DoS': 1000, 'Botnet': 1000, 'Web Attack': 1000, 'Brute Force': 1000, 'Infiltration': 36, 'Exploit': 11}
+13:40:12 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 23.4s (rows: 0 → 7,047)
+13:40:12 | INFO    | etl.tracker  | ▶ Starting stage: transform
+13:40:12 | INFO    | etl.transform | Transforming 7,047 rows
+13:40:12 | DEBUG   | etl.transform | Renamed 86 columns
+13:40:12 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+13:40:12 | INFO    | etl.transform | Classifying source IPs
+13:40:12 | DEBUG   | etl.transform | Classifying 166 unique IPs
+13:40:13 | INFO    | etl.transform | Classifying destination IPs
+13:40:13 | DEBUG   | etl.transform | Classifying 295 unique IPs
+13:40:13 | INFO    | etl.transform | Source IP classification: {'internal': 6536, 'external': 511}
+13:40:13 | INFO    | etl.transform | Destination IP classification: {'internal': 6015, 'external': 1030, 'special': 2}
+13:40:13 | INFO    | etl.transform | Transform complete: 7,047 rows × 93 columns
+13:40:13 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 0.2s (rows: 7,047 → 7,047)
+13:40:13 | INFO    | etl.tracker  | ▶ Starting stage: enrich
+13:40:13 | INFO    | etl.enrich   | Found 406 distinct external IPs to enrich
+13:40:13 | INFO    | etl.enrich   | Top 406 IPs by volume account for 21.9% of external traffic
+13:40:13 | INFO    | etl.enrich   | Opening MaxMind DB: GeoLite2-City.mmdb
+13:40:13 | INFO    | etl.enrich   | GeoIP: 404 resolved, 2 not-found, 0 errors
+13:40:13 | INFO    | etl.enrich   | Querying AbuseIPDB for 406 IPs (throttled to ~10 req/s)
+13:40:41 | INFO    | etl.enrich   |   Progress: 50/406 IPs enriched
+13:41:07 | INFO    | etl.enrich   |   Progress: 100/406 IPs enriched
+13:41:33 | INFO    | etl.enrich   |   Progress: 150/406 IPs enriched
+13:42:04 | INFO    | etl.enrich   |   Progress: 200/406 IPs enriched
+13:42:33 | INFO    | etl.enrich   |   Progress: 250/406 IPs enriched
+13:42:58 | INFO    | etl.enrich   |   Progress: 300/406 IPs enriched
+13:43:25 | INFO    | etl.enrich   |   Progress: 350/406 IPs enriched
+13:43:55 | INFO    | etl.enrich   |   Progress: 400/406 IPs enriched
+13:43:58 | INFO    | etl.enrich   | AbuseIPDB: 406 IPs enriched (complete)
+13:43:58 | INFO    | etl.enrich   | Top 10 countries by IP count:
+{'US': 307, 'DE': 13, 'CA': 10, 'BR': 10, 'FR': 9, 'NZ': 6, 'RU': 4, 'GB': 4, 'IE': 4, 'KR': 3}
+13:43:58 | INFO    | etl.tracker  | ✓ Stage 'enrich' completed in 225.1s (rows: 7,047 → 406)
+13:43:58 | INFO    | etl.tracker  | ╚══ Pipeline run 11 SUCCESS in 249.0s ══╝

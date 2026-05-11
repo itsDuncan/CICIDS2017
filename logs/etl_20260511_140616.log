@@ -1,0 +1,110 @@
+14:06:16 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_140616.log
+14:06:19 | INFO    | etl.tracker  | ╔══ Pipeline run 13 started: cicids_to_warehouse (sample) ══╗
+14:06:19 | INFO    | etl.tracker  | ▶ Starting stage: extract
+14:06:19 | INFO    | etl.extract  | Reading stratified sample (n=10,000) from cicids_clean.parquet
+14:06:38 | INFO    | etl.extract  | Loaded 8,047 rows × 87 columns into memory
+14:06:38 | DEBUG   | etl.extract  | Schema validation passed
+14:06:38 | WARNING | etl.extract  | Dropped 1,000 invalid rows (missing timestamp or IPs)
+14:06:38 | INFO    | etl.extract  | Attack family distribution (top): {'Benign': 1000, 'DoS': 1000, 'Reconnaissance': 1000, 'DDoS': 1000, 'Botnet': 1000, 'Web Attack': 1000, 'Brute Force': 1000, 'Infiltration': 36, 'Exploit': 11}
+14:06:38 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 19.4s (rows: 0 → 7,047)
+14:06:38 | INFO    | etl.tracker  | ▶ Starting stage: transform
+14:06:38 | INFO    | etl.transform | Transforming 7,047 rows
+14:06:38 | DEBUG   | etl.transform | Renamed 86 columns
+14:06:38 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+14:06:38 | INFO    | etl.transform | Classifying source IPs
+14:06:38 | DEBUG   | etl.transform | Classifying 159 unique IPs
+14:06:38 | INFO    | etl.transform | Classifying destination IPs
+14:06:38 | DEBUG   | etl.transform | Classifying 298 unique IPs
+14:06:38 | INFO    | etl.transform | Source IP classification: {'internal': 6531, 'external': 516}
+14:06:38 | INFO    | etl.transform | Destination IP classification: {'internal': 6035, 'external': 1012}
+14:06:38 | INFO    | etl.transform | Transform complete: 7,047 rows × 93 columns
+14:06:38 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 0.2s (rows: 7,047 → 7,047)
+14:06:38 | INFO    | etl.tracker  | ▶ Starting stage: enrich
+14:06:38 | INFO    | etl.enrich   | Found 401 distinct external IPs to enrich
+14:06:38 | INFO    | etl.enrich   | Top 401 IPs by volume account for 21.7% of external traffic
+14:06:38 | INFO    | etl.enrich   | Opening MaxMind DB: GeoLite2-City.mmdb
+14:06:38 | INFO    | etl.enrich   | GeoIP: 399 resolved, 2 not-found, 0 errors
+14:06:38 | INFO    | etl.enrich   | Querying AbuseIPDB for 401 IPs (throttled to ~10 req/s)
+14:07:03 | INFO    | etl.enrich   |   Progress: 50/401 IPs enriched
+14:07:29 | INFO    | etl.enrich   |   Progress: 100/401 IPs enriched
+14:07:54 | INFO    | etl.enrich   |   Progress: 150/401 IPs enriched
+14:08:11 | WARNING | etl.enrich   | AbuseIPDB rate-limit hit at 72.21.81.48 — stopping enrichment early
+14:08:11 | INFO    | etl.enrich   | AbuseIPDB: 185 IPs enriched (partial)
+14:08:11 | INFO    | etl.enrich   | Top 10 countries by IP count:
+{'US': 302, 'CA': 16, 'IE': 11, 'RU': 7, 'FR': 6, 'NZ': 4, 'CN': 4, 'DE': 4, 'GB': 4, 'JP': 3}
+14:08:11 | INFO    | etl.tracker  | ✓ Stage 'enrich' completed in 93.1s (rows: 7,047 → 401)
+14:08:11 | INFO    | etl.tracker  | ▶ Starting stage: load
+14:08:11 | INFO    | etl.load     | Resolving 417 distinct IPs against dim_asset
+14:08:11 | INFO    | etl.load     |   Found 0 existing dim_asset rows
+14:08:11 | INFO    | etl.load     |   Need to INSERT 417 new dim_asset rows
+14:08:12 | INFO    | etl.load     |   Inserted 417 new dim_asset rows
+14:08:12 | INFO    | etl.load     | Resolving 6,316 distinct ports against dim_port
+14:08:12 | INFO    | etl.load     |   Found 40 existing dim_port rows
+14:08:12 | INFO    | etl.load     |   Need to INSERT 6,290 new dim_port rows
+14:08:13 | INFO    | etl.load     |   Inserted 6,290 new dim_port rows
+14:08:13 | INFO    | etl.load     | FK maps ready: assets=417, ports=6,330, attacks=16, protocols=12
+14:08:13 | INFO    | etl.load     | Applying surrogate key mappings
+14:08:13 | INFO    | etl.load     | FK resolution rates: {'src_asset_sk': np.float64(100.0), 'dest_asset_sk': np.float64(100.0), 'src_port_sk': np.float64(100.0), 'dest_port_sk': np.float64(100.0), 'attack_sk': np.float64(100.0), 'protocol_sk': np.float64(100.0)}
+14:08:13 | INFO    | etl.load     | Writing 7,047 rows to temp CSV: C:\temp\soc_sentinel\fact_security_event.csv
+14:08:14 | INFO    | etl.load     |   CSV written in 1.1s (3.8 MB)
+14:08:14 | INFO    | etl.load     | TRUNCATE warehouse.fact_security_event
+14:08:14 | INFO    | etl.load     | COPY 3.8 MB into fact_security_event...
+14:08:14 | ERROR   | etl.tracker  | ✗ Stage 'load' failed after 2.5s: invalid input syntax for type bigint: "4093762.0"
+CONTEXT:  COPY fact_security_event, line 2, column flow_duration: "4093762.0"
+
+14:08:14 | ERROR   | etl.tracker  | ╚══ Pipeline run 13 FAILED: invalid input syntax for type bigint: "4093762.0"
+CONTEXT:  COPY fact_security_event, line 2, column flow_duration: "4093762.0"
+ ══╝
+14:31:10 | INFO    | etl.tracker  | ╔══ Pipeline run 14 started: cicids_to_warehouse (sample) ══╗
+14:31:10 | INFO    | etl.tracker  | ▶ Starting stage: extract
+14:31:10 | INFO    | etl.extract  | Reading stratified sample (n=10,000) from cicids_clean.parquet
+14:31:23 | INFO    | etl.extract  | Loaded 8,047 rows × 87 columns into memory
+14:31:23 | DEBUG   | etl.extract  | Schema validation passed
+14:31:23 | WARNING | etl.extract  | Dropped 1,000 invalid rows (missing timestamp or IPs)
+14:31:23 | INFO    | etl.extract  | Attack family distribution (top): {'Benign': 1000, 'DoS': 1000, 'DDoS': 1000, 'Botnet': 1000, 'Brute Force': 1000, 'Web Attack': 1000, 'Reconnaissance': 1000, 'Infiltration': 36, 'Exploit': 11}
+14:31:23 | INFO    | etl.tracker  | ✓ Stage 'extract' completed in 13.0s (rows: 0 → 7,047)
+14:31:23 | INFO    | etl.tracker  | ▶ Starting stage: transform
+14:31:23 | INFO    | etl.transform | Transforming 7,047 rows
+14:31:23 | DEBUG   | etl.transform | Renamed 86 columns
+14:31:23 | INFO    | etl.transform | Deriving date_sk, time_sk, is_after_hours, is_weekend
+14:31:23 | INFO    | etl.transform | Classifying source IPs
+14:31:23 | DEBUG   | etl.transform | Classifying 159 unique IPs
+14:31:23 | INFO    | etl.transform | Classifying destination IPs
+14:31:23 | DEBUG   | etl.transform | Classifying 290 unique IPs
+14:31:23 | INFO    | etl.transform | Source IP classification: {'internal': 6542, 'external': 505}
+14:31:23 | INFO    | etl.transform | Destination IP classification: {'internal': 6029, 'external': 1018}
+14:31:23 | INFO    | etl.transform | Transform complete: 7,047 rows × 93 columns
+14:31:23 | INFO    | etl.tracker  | ✓ Stage 'transform' completed in 0.1s (rows: 7,047 → 7,047)
+14:31:23 | INFO    | etl.tracker  | ▶ Starting stage: enrich
+14:31:23 | INFO    | etl.enrich   | Found 399 distinct external IPs to enrich
+14:31:23 | INFO    | etl.enrich   | Top 399 IPs by volume account for 21.6% of external traffic
+14:31:23 | INFO    | etl.enrich   | Opening MaxMind DB: GeoLite2-City.mmdb
+14:31:23 | INFO    | etl.enrich   | GeoIP: 398 resolved, 1 not-found, 0 errors
+14:31:23 | INFO    | etl.enrich   | Querying AbuseIPDB for 399 IPs (throttled to ~10 req/s)
+14:31:24 | WARNING | etl.enrich   | AbuseIPDB rate-limit hit at 205.174.165.73 — stopping enrichment early
+14:31:24 | INFO    | etl.enrich   | AbuseIPDB: 0 IPs enriched (partial)
+14:31:24 | INFO    | etl.enrich   | Top 10 countries by IP count:
+{'US': 290, 'CA': 19, 'JP': 12, 'DE': 11, 'CN': 7, 'KR': 5, 'NZ': 5, 'TR': 4, 'FR': 4, 'IN': 4}
+14:31:24 | INFO    | etl.tracker  | ✓ Stage 'enrich' completed in 0.8s (rows: 7,047 → 399)
+14:31:24 | INFO    | etl.tracker  | ▶ Starting stage: load
+14:31:24 | INFO    | etl.load     | Resolving 414 distinct IPs against dim_asset
+14:31:24 | INFO    | etl.load     |   Found 417 existing dim_asset rows
+14:31:24 | INFO    | etl.load     |   Need to INSERT 326 new dim_asset rows
+14:31:24 | INFO    | etl.load     |   Inserted 326 new dim_asset rows
+14:31:24 | INFO    | etl.load     | Resolving 6,229 distinct ports against dim_port
+14:31:24 | INFO    | etl.load     |   Found 6,330 existing dim_port rows
+14:31:24 | INFO    | etl.load     |   Need to INSERT 3,748 new dim_port rows
+14:31:24 | INFO    | etl.load     |   Inserted 3,748 new dim_port rows
+14:31:24 | INFO    | etl.load     | FK maps ready: assets=743, ports=10,078, attacks=16, protocols=12
+14:31:24 | INFO    | etl.load     | Applying surrogate key mappings
+14:31:24 | INFO    | etl.load     | FK resolution rates: {'src_asset_sk': np.float64(100.0), 'dest_asset_sk': np.float64(100.0), 'src_port_sk': np.float64(100.0), 'dest_port_sk': np.float64(100.0), 'attack_sk': np.float64(100.0), 'protocol_sk': np.float64(100.0)}
+14:31:24 | INFO    | etl.load     | Writing 7,047 rows to temp CSV: C:\temp\soc_sentinel\fact_security_event.csv
+14:31:25 | INFO    | etl.load     |   CSV written in 0.5s (3.8 MB)
+14:31:25 | INFO    | etl.load     | TRUNCATE warehouse.fact_security_event
+14:31:25 | INFO    | etl.load     | COPY 3.8 MB into fact_security_event...
+14:31:25 | ERROR   | etl.tracker  | ✗ Stage 'load' failed after 1.3s: invalid input syntax for type bigint: "67576176.0"
+CONTEXT:  COPY fact_security_event, line 2, column flow_duration: "67576176.0"
+
+14:31:25 | ERROR   | etl.tracker  | ╚══ Pipeline run 14 FAILED: invalid input syntax for type bigint: "67576176.0"
+CONTEXT:  COPY fact_security_event, line 2, column flow_duration: "67576176.0"
+ ══╝
