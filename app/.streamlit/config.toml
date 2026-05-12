@@ -1,0 +1,14 @@
+# Streamlit theme — professional SOC color palette
+[theme]
+primaryColor = "#e63946"          # alert red
+backgroundColor = "#0f1419"        # deep slate
+secondaryBackgroundColor = "#1c2128"  # card slate
+textColor = "#e6edf3"              # off-white
+font = "sans serif"
+
+[server]
+headless = true
+runOnSave = true
+
+[browser]
+gatherUsageStats = false
