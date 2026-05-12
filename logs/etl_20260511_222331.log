@@ -1,0 +1,34 @@
+22:23:31 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_222331.log
+22:23:31 | INFO    | etl.score    | Starting scoring: chunk_size=100000, limit=None
+22:23:31 | INFO    | etl.score    | Loaded all 3 models
+22:23:31 | INFO    | etl.score    | Scoring 2,830,743 rows in chunks of 100,000
+22:23:49 | INFO    | etl.score    |   Chunk 1: 100,000/2,830,743 (3.5%) | chunk time: 17.4s | rate: 5727/s | ETA: 477s
+22:24:14 | INFO    | etl.score    |   Chunk 2: 200,000/2,830,743 (7.1%) | chunk time: 24.8s | rate: 4728/s | ETA: 556s
+22:24:40 | INFO    | etl.score    |   Chunk 3: 300,000/2,830,743 (10.6%) | chunk time: 25.8s | rate: 4405/s | ETA: 574s
+22:25:03 | INFO    | etl.score    |   Chunk 4: 400,000/2,830,743 (14.1%) | chunk time: 23.9s | rate: 4346/s | ETA: 559s
+22:25:31 | INFO    | etl.score    |   Chunk 5: 500,000/2,830,743 (17.7%) | chunk time: 27.4s | rate: 4186/s | ETA: 557s
+22:25:51 | INFO    | etl.score    |   Chunk 6: 600,000/2,830,743 (21.2%) | chunk time: 20.6s | rate: 4286/s | ETA: 521s
+22:26:13 | INFO    | etl.score    |   Chunk 7: 700,000/2,830,743 (24.7%) | chunk time: 21.9s | rate: 4324/s | ETA: 493s
+22:26:45 | INFO    | etl.score    |   Chunk 8: 800,000/2,830,743 (28.3%) | chunk time: 31.3s | rate: 4142/s | ETA: 490s
+22:27:14 | INFO    | etl.score    |   Chunk 9: 900,000/2,830,743 (31.8%) | chunk time: 29.9s | rate: 4036/s | ETA: 478s
+22:27:48 | INFO    | etl.score    |   Chunk 10: 1,000,000/2,830,743 (35.3%) | chunk time: 33.3s | rate: 3901/s | ETA: 469s
+22:28:16 | INFO    | etl.score    |   Chunk 11: 1,100,000/2,830,743 (38.9%) | chunk time: 28.4s | rate: 3863/s | ETA: 448s
+22:28:46 | INFO    | etl.score    |   Chunk 12: 1,200,000/2,830,743 (42.4%) | chunk time: 30.2s | rate: 3810/s | ETA: 428s
+22:29:15 | INFO    | etl.score    |   Chunk 13: 1,300,000/2,830,743 (45.9%) | chunk time: 28.4s | rate: 3786/s | ETA: 404s
+22:29:46 | INFO    | etl.score    |   Chunk 14: 1,400,000/2,830,743 (49.5%) | chunk time: 31.4s | rate: 3735/s | ETA: 383s
+22:30:15 | INFO    | etl.score    |   Chunk 15: 1,500,000/2,830,743 (53.0%) | chunk time: 29.0s | rate: 3715/s | ETA: 358s
+22:30:51 | INFO    | etl.score    |   Chunk 16: 1,600,000/2,830,743 (56.5%) | chunk time: 35.7s | rate: 3641/s | ETA: 338s
+22:31:24 | INFO    | etl.score    |   Chunk 17: 1,700,000/2,830,743 (60.1%) | chunk time: 33.5s | rate: 3595/s | ETA: 315s
+22:32:01 | INFO    | etl.score    |   Chunk 18: 1,800,000/2,830,743 (63.6%) | chunk time: 36.8s | rate: 3531/s | ETA: 292s
+22:32:39 | INFO    | etl.score    |   Chunk 19: 1,900,000/2,830,743 (67.1%) | chunk time: 37.8s | rate: 3471/s | ETA: 268s
+22:33:10 | INFO    | etl.score    |   Chunk 20: 2,000,000/2,830,743 (70.7%) | chunk time: 31.0s | rate: 3458/s | ETA: 240s
+22:33:39 | INFO    | etl.score    |   Chunk 21: 2,100,000/2,830,743 (74.2%) | chunk time: 28.8s | rate: 3458/s | ETA: 211s
+22:34:09 | INFO    | etl.score    |   Chunk 22: 2,200,000/2,830,743 (77.7%) | chunk time: 29.9s | rate: 3453/s | ETA: 183s
+22:34:36 | INFO    | etl.score    |   Chunk 23: 2,300,000/2,830,743 (81.3%) | chunk time: 27.6s | rate: 3460/s | ETA: 153s
+22:35:02 | INFO    | etl.score    |   Chunk 24: 2,400,000/2,830,743 (84.8%) | chunk time: 26.0s | rate: 3475/s | ETA: 124s
+22:35:30 | INFO    | etl.score    |   Chunk 25: 2,500,000/2,830,743 (88.3%) | chunk time: 28.2s | rate: 3477/s | ETA: 95s
+22:35:57 | INFO    | etl.score    |   Chunk 26: 2,600,000/2,830,743 (91.8%) | chunk time: 27.1s | rate: 3485/s | ETA: 66s
+22:36:27 | INFO    | etl.score    |   Chunk 27: 2,700,000/2,830,743 (95.4%) | chunk time: 29.3s | rate: 3482/s | ETA: 38s
+22:37:06 | INFO    | etl.score    |   Chunk 28: 2,800,000/2,830,743 (98.9%) | chunk time: 39.6s | rate: 3436/s | ETA: 9s
+22:37:30 | INFO    | etl.score    |   Chunk 28: 2,830,743/2,830,743 (100.0%) | chunk time: 23.2s | rate: 3377/s | ETA: 0s
+22:37:30 | INFO    | etl.score    | Scoring complete: 2,830,743 rows in 838.2s (3377 rows/sec)

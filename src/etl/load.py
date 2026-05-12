@@ -477,8 +477,6 @@ def run(ctx: PipelineContext) -> int:
     # Step 5 & 6: bulk load
     rows_loaded = bulk_load_facts(fact_df, truncate=ctx.truncate_facts)
 
-    ctx.rows_loaded = rows_loaded
-
     logger.info("Refreshing materialized views")
     engine = get_engine()
     with engine.begin() as conn:
@@ -486,4 +484,5 @@ def run(ctx: PipelineContext) -> int:
             conn.execute(text(f"REFRESH MATERIALIZED VIEW warehouse.{mv}"))
     logger.info("Materialized views refreshed")
 
+    ctx.rows_loaded = rows_loaded
     return rows_loaded

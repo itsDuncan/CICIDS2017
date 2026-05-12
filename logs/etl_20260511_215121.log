@@ -1,0 +1,7 @@
+21:51:21 | INFO    | etl          | Logging to: C:\Users\dunca\OneDrive\Documents\UON\SCS6104\Capstone\logs\etl_20260511_215121.log
+21:51:21 | INFO    | etl.score    | Starting scoring: chunk_size=5000, limit=10000
+21:51:22 | INFO    | etl.score    | Loaded all 3 models
+21:51:22 | INFO    | etl.score    | Scoring 10,000 rows in chunks of 5,000
+21:51:23 | INFO    | etl.score    |   Chunk 1: 5,000/10,000 (50.0%) | chunk time: 1.0s | rate: 4667/s | ETA: 1s
+21:51:24 | INFO    | etl.score    |   Chunk 2: 10,000/10,000 (100.0%) | chunk time: 0.8s | rate: 5247/s | ETA: 0s
+21:51:24 | INFO    | etl.score    | Scoring complete: 10,000 rows in 1.9s (5239 rows/sec)
