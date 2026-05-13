@@ -82,16 +82,79 @@ def kpi_card(
 # ---------------------------------------------------------------------
 
 def render_sidebar_header():
-    """Render branded sidebar header. Call from every page."""
+    """
+    Render the SOC Sentinel branded sidebar header with
+    section labels for Network Threats and Insider Threats.
+    """
     st.sidebar.markdown(
         """
-        <div style="text-align:center; padding: 0.5rem 0 1rem 0;">
-            <h2 style="color:#e63946; margin:0;">🛡️ SOC Sentinel</h2>
-            <p style="color:#a3b1c2; margin:0; font-size:0.85em;">
-                Phase 1 · Network Threat Analytics
-            </p>
+        <style>
+        /* Hide default page nav so we render our own grouped version */
+        [data-testid="stSidebarNav"] {
+            display: none;
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0 0.8rem 0;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid #2a2f37;
+        }
+        .sidebar-brand-text {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #5a8da4;
+            letter-spacing: -0.02em;
+        }
+        .sidebar-brand-sub {
+            color: #7d8a98;
+            font-size: 0.75em;
+            margin-top: -0.2rem;
+        }
+        .sidebar-section-label {
+            color: #7d8a98;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin: 1.1rem 0 0.4rem 0;
+            padding: 0;
+        }
+        .sidebar-nav-link {
+            color:#7d8a98 !important;
+            display: block;
+            text-decoration: none;
+            padding: 0.4rem 0.7rem;
+            border-radius: 8px;
+            margin: 0.1rem 0;
+            transition: background 0.15s ease;
+        }
+        .sidebar-nav-link:hover {
+            background: rgba(90, 141, 164, 0.15);
+            text-decoration: none;
+        }
+        </style>
+        <div class="sidebar-brand">
+            <span style="font-size: 1.5em;">🛡️</span>
+            <div>
+                <div class="sidebar-brand-text">SOC Sentinel</div>
+                <div class="sidebar-brand-sub">Unified Threat Analytics</div>
+            </div>
         </div>
-        <hr style="margin: 0.5rem 0;">
+        <a href="/" target="_self" class="sidebar-nav-link">main</a>
+
+        <p class="sidebar-section-label">Network Threats</p>
+        <a href="/Summary" target="_self" class="sidebar-nav-link">📊 Summary</a>
+        <a href="/Timeline" target="_self" class="sidebar-nav-link">📈 Timeline</a>
+        <a href="/Geography" target="_self" class="sidebar-nav-link">🌍 Geography</a>
+        <a href="/Heatmap" target="_self" class="sidebar-nav-link">🔥 Heatmap</a>
+        <a href="/Alerts" target="_self" class="sidebar-nav-link">🚨 Alerts</a>
+
+        <p class="sidebar-section-label">Insider Threats</p>
+        <a href="/User_Risk" target="_self" class="sidebar-nav-link">🕵️ User Risk</a>
+        <a href="/Scenarios" target="_self" class="sidebar-nav-link">🎭 Scenarios</a>
+        <a href="/User_Drilldown" target="_self" class="sidebar-nav-link">🔬 User Drilldown</a>
         """,
         unsafe_allow_html=True,
     )
@@ -104,8 +167,8 @@ def render_sidebar_footer(rows_loaded: Optional[int] = None,
     st.sidebar.markdown(
         """
         <div style="font-size:0.75em; color:#7d8a98; padding-top:1rem;">
-            <p>Data source: CICIDS2017</p>
-            <p>Phase 2 (CERT Insider Threat) coming soon</p>
+            <p>Data source 1: CICIDS2017</p>
+            <p>Data source 2: CERT r4.2</p>
         </div>
         """,
         unsafe_allow_html=True,

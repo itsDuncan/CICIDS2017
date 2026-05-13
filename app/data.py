@@ -438,3 +438,335 @@ def get_working_hours_summary() -> pd.DataFrame:
             GROUP BY time_period, at.attack_family
         """), conn)
     return df
+
+# =====================================================================
+# Phase 2 — Insider Threat (CERT)
+# =====================================================================
+
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_phase2_kpis() -> dict:
+    """Headline KPIs for Phase 2 user-level risk."""
+    engine = get_engine()
+    with engine.begin() as conn:
+        # User risk score breakdown
+        user_stats = conn.execute(text("""
+            SELECT
+                COUNT(*) AS total_users,
+                SUM(is_malicious_truth) AS malicious_users_truth,
+                SUM(CASE WHEN risk_label IN ('high', 'elevated') THEN 1 ELSE 0 END)
+                    AS flagged_users,
+                SUM(CASE WHEN risk_label IN ('high', 'elevated')
+                          AND is_malicious_truth = 1 THEN 1 ELSE 0 END)
+                    AS flagged_correctly
+            FROM warehouse.user_risk_scores
+        """)).fetchone()
+
+        # Activity stats
+        activity_stats = conn.execute(text("""
+            SELECT
+                COUNT(*) AS total_events,
+                SUM(in_attack_window) AS attack_window_events,
+                SUM(is_after_hours) AS after_hours_events,
+                COUNT(DISTINCT user_sk) AS distinct_users
+            FROM warehouse.fact_user_activity
+        """)).fetchone()
+
+    total = user_stats[0] or 0
+    malicious = user_stats[1] or 0
+    flagged = user_stats[2] or 0
+    correct = user_stats[3] or 0
+
+    return {
+        "total_users":        int(total),
+        "malicious_truth":    int(malicious),
+        "flagged_users":      int(flagged),
+        "flagged_correctly":  int(correct),
+        "recall":             round(correct / max(malicious, 1) * 100, 1),
+        "precision":          round(correct / max(flagged, 1) * 100, 1),
+        "total_events":       int(activity_stats[0] or 0),
+        "attack_window_events": int(activity_stats[1] or 0),
+        "after_hours_events": int(activity_stats[2] or 0),
+        "distinct_users":     int(activity_stats[3] or 0),
+    }
+
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_user_risk_leaderboard(
+    min_score: float = 0.0,
+    risk_filter: list = None,
+    scenario_filter: list = None,
+) -> pd.DataFrame:
+    """
+    All users with their risk scores. Joined to the LATEST SCD2 record
+    per user (handles departed malicious users correctly).
+    """
+    where_parts = ["1=1"]
+    if min_score > 0:
+        where_parts.append(f"urs.risk_score >= {min_score}")
+    if risk_filter:
+        labels = ", ".join(f"'{r}'" for r in risk_filter)
+        where_parts.append(f"urs.risk_label IN ({labels})")
+    if scenario_filter:
+        scens = ", ".join(str(s) for s in scenario_filter)
+        where_parts.append(f"COALESCE(latest_u.malicious_scenario, 0) IN ({scens})")
+
+    where_clause = " AND ".join(where_parts)
+    engine = get_engine()
+    with engine.begin() as conn:
+        df = pd.read_sql(text(f"""
+            WITH latest_user AS (
+                SELECT DISTINCT ON (user_id)
+                    user_sk, user_id, employee_name, role, department, team,
+                    supervisor_name, is_malicious, malicious_scenario,
+                    attack_window_start, attack_window_end, is_current
+                FROM warehouse.dim_user
+                ORDER BY user_id, valid_from DESC
+            )
+            SELECT
+                latest_u.user_id,
+                latest_u.employee_name,
+                latest_u.role,
+                latest_u.department,
+                latest_u.team,
+                latest_u.supervisor_name,
+                latest_u.is_current AS employment_active,
+                ROUND(urs.risk_score::numeric, 4) AS risk_score,
+                urs.risk_label,
+                urs.is_malicious_truth,
+                latest_u.malicious_scenario,
+                latest_u.attack_window_start,
+                latest_u.attack_window_end
+            FROM warehouse.user_risk_scores urs
+            JOIN latest_user latest_u ON latest_u.user_sk = urs.user_sk
+            WHERE {where_clause}
+            ORDER BY urs.risk_score DESC
+        """), conn)
+    return df
+
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_scenario_summary() -> pd.DataFrame:
+    """Per-scenario detection breakdown."""
+    engine = get_engine()
+    with engine.begin() as conn:
+        df = pd.read_sql(text("""
+            WITH latest_user AS (
+                SELECT DISTINCT ON (user_id)
+                    user_sk, malicious_scenario
+                FROM warehouse.dim_user
+                ORDER BY user_id, valid_from DESC
+            )
+            SELECT
+                COALESCE(latest_u.malicious_scenario, 0) AS scenario,
+                COUNT(*) AS users,
+                SUM(CASE WHEN urs.risk_label IN ('high', 'elevated') THEN 1 ELSE 0 END)
+                    AS flagged,
+                AVG(urs.risk_score) AS avg_risk_score,
+                MAX(urs.risk_score) AS max_risk_score,
+                MIN(urs.risk_score) AS min_risk_score
+            FROM warehouse.user_risk_scores urs
+            JOIN latest_user latest_u ON latest_u.user_sk = urs.user_sk
+            GROUP BY COALESCE(latest_u.malicious_scenario, 0)
+            ORDER BY scenario
+        """), conn)
+    df["catch_rate_pct"] = (df["flagged"] / df["users"] * 100).round(1)
+    return df
+
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_user_activity_timeline(user_id: str) -> pd.DataFrame:
+    """Daily activity timeline for one user — uses latest SCD2 user_sk."""
+    engine = get_engine()
+    with engine.begin() as conn:
+        df = pd.read_sql(text("""
+            WITH latest_user AS (
+                SELECT DISTINCT ON (user_id) user_sk, attack_window_start,
+                       attack_window_end, is_malicious, malicious_scenario
+                FROM warehouse.dim_user
+                WHERE user_id = :user_id
+                ORDER BY user_id, valid_from DESC
+            )
+            SELECT
+                udml.feature_date,
+                udml.events_total,
+                udml.usb_connects,
+                udml.emails_sent,
+                udml.ext_emails,
+                udml.file_accesses,
+                udml.logons,
+                udml.after_hours_events,
+                udml.weekend_events,
+                udml.usb_zscore_peer,
+                udml.usb_ratio_personal,
+                udml.multi_signal_count,
+                udml.in_attack_window,
+                ub.baseline_usb_per_day,
+                ub.baseline_ext_emails_per_day,
+                ub.baseline_after_hours_pct,
+                lu.attack_window_start,
+                lu.attack_window_end,
+                lu.is_malicious,
+                lu.malicious_scenario
+            FROM latest_user lu
+            JOIN warehouse.user_daily_ml_features udml ON udml.user_sk = lu.user_sk
+            LEFT JOIN warehouse.user_baselines ub ON ub.user_sk = lu.user_sk
+            ORDER BY udml.feature_date
+        """), conn, params={"user_id": user_id})
+    df["feature_date"] = pd.to_datetime(df["feature_date"])
+    return df
+
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_user_search_options() -> pd.DataFrame:
+    """All users (latest SCD2 record each) for drilldown search."""
+    engine = get_engine()
+    with engine.begin() as conn:
+        df = pd.read_sql(text("""
+            SELECT DISTINCT ON (user_id)
+                user_id, employee_name, role, department, is_current
+            FROM warehouse.dim_user
+            ORDER BY user_id, valid_from DESC
+        """), conn)
+    return df
+
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_user_profile(user_id: str) -> dict:
+    """Complete profile for one user — latest SCD2 record."""
+    engine = get_engine()
+    with engine.begin() as conn:
+        result = conn.execute(text("""
+            WITH latest_user AS (
+                SELECT DISTINCT ON (user_id) *
+                FROM warehouse.dim_user
+                WHERE user_id = :user_id
+                ORDER BY user_id, valid_from DESC
+            )
+            SELECT
+                u.user_id, u.employee_name, u.email_address,
+                u.role, u.department, u.team, u.supervisor_name,
+                u.business_unit, u.functional_unit, u.is_current,
+                u.is_malicious, u.malicious_scenario,
+                u.attack_window_start, u.attack_window_end,
+                urs.risk_score, urs.risk_label,
+                ub.baseline_usb_per_day, ub.baseline_emails_per_day,
+                ub.baseline_ext_emails_per_day, ub.baseline_files_per_day,
+                ub.baseline_after_hours_pct, ub.baseline_weekend_pct,
+                ub.baseline_active_days, ub.baseline_from, ub.baseline_to
+            FROM latest_user u
+            LEFT JOIN warehouse.user_risk_scores urs ON urs.user_sk = u.user_sk
+            LEFT JOIN warehouse.user_baselines ub ON ub.user_sk = u.user_sk
+        """), {"user_id": user_id}).fetchone()
+    if not result:
+        return None
+    return dict(result._mapping)
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_scenario_behavioral_profile() -> pd.DataFrame:
+    """
+    Average post-baseline behavioral feature values per scenario.
+    Used by the Scenarios page radar chart.
+    """
+    engine = get_engine()
+    with engine.begin() as conn:
+        df = pd.read_sql(text("""
+            WITH latest_user AS (
+                SELECT DISTINCT ON (user_id) user_sk, malicious_scenario, is_malicious
+                FROM warehouse.dim_user
+                ORDER BY user_id, valid_from DESC
+            ),
+            user_aggregates AS (
+                SELECT
+                    lu.user_sk,
+                    COALESCE(lu.malicious_scenario, 0) AS scenario,
+                    AVG(udml.usb_connects::float) AS avg_usb,
+                    AVG(udml.ext_emails::float) AS avg_ext_emails,
+                    AVG(udml.file_accesses::float) AS avg_files,
+                    AVG(udml.after_hours_pct::float) AS avg_after_hours_pct,
+                    MAX(udml.usb_zscore_peer::float) AS max_usb_z,
+                    MAX(udml.usb_ratio_personal::float) AS max_usb_ratio,
+                    MAX(udml.multi_signal_count::float) AS max_signals
+                FROM latest_user lu
+                JOIN warehouse.user_daily_ml_features udml ON udml.user_sk = lu.user_sk
+                JOIN warehouse.user_baselines ub ON ub.user_sk = lu.user_sk
+                WHERE udml.feature_date >= ub.baseline_to
+                GROUP BY lu.user_sk, lu.malicious_scenario
+            )
+            SELECT
+                scenario,
+                COUNT(*) AS users,
+                AVG(avg_usb) AS avg_daily_usb,
+                AVG(avg_ext_emails) AS avg_daily_ext_emails,
+                AVG(avg_files) AS avg_daily_files,
+                AVG(avg_after_hours_pct) AS avg_after_hours_pct,
+                AVG(max_usb_z) AS avg_peak_usb_z,
+                AVG(max_usb_ratio) AS avg_peak_usb_ratio,
+                AVG(max_signals) AS avg_peak_signals
+            FROM user_aggregates
+            GROUP BY scenario
+            ORDER BY scenario
+        """), conn)
+    return df
+
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_malicious_users_detail() -> pd.DataFrame:
+    """
+    Every malicious user with their model verdict + attack window detail.
+    Used by the Scenarios page caught/missed table.
+    """
+    engine = get_engine()
+    with engine.begin() as conn:
+        df = pd.read_sql(text("""
+            WITH latest_user AS (
+                SELECT DISTINCT ON (user_id) *
+                FROM warehouse.dim_user
+                WHERE is_malicious = 1
+                ORDER BY user_id, valid_from DESC
+            )
+            SELECT
+                lu.user_id,
+                lu.employee_name,
+                lu.role,
+                lu.department,
+                lu.malicious_scenario,
+                lu.attack_window_start,
+                lu.attack_window_end,
+                (lu.attack_window_end::date - lu.attack_window_start::date) AS window_days,
+                lu.is_current AS employment_active,
+                ROUND(urs.risk_score::numeric, 4) AS risk_score,
+                urs.risk_label,
+                CASE WHEN urs.risk_label IN ('high', 'elevated') THEN 1 ELSE 0 END AS caught
+            FROM latest_user lu
+            JOIN warehouse.user_risk_scores urs ON urs.user_sk = lu.user_sk
+            ORDER BY lu.malicious_scenario, urs.risk_score DESC
+        """), conn)
+    return df
+
+@st.cache_data(ttl=CACHE_TTL)
+def get_user_hourly_activity(user_id: str) -> pd.DataFrame:
+    """
+    Hour-of-day × day-of-week activity grid for one user.
+    Used by the drilldown page heatmap.
+    """
+    engine = get_engine()
+    with engine.begin() as conn:
+        df = pd.read_sql(text("""
+            WITH latest_user AS (
+                SELECT DISTINCT ON (user_id) user_sk
+                FROM warehouse.dim_user
+                WHERE user_id = :user_id
+                ORDER BY user_id, valid_from DESC
+            )
+            SELECT
+                EXTRACT(HOUR FROM f.event_time)::int AS hour_24,
+                EXTRACT(DOW FROM f.event_time)::int AS day_of_week,
+                at.activity_category,
+                COUNT(*) AS events
+            FROM latest_user lu
+            JOIN warehouse.fact_user_activity f ON f.user_sk = lu.user_sk
+            JOIN warehouse.dim_activity_type at ON at.activity_sk = f.activity_sk
+            GROUP BY hour_24, day_of_week, at.activity_category
+        """), conn, params={"user_id": user_id})
+    return df

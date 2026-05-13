@@ -244,6 +244,73 @@ with col4:
     )
 
 # ---------------------------------------------------------------------
+# Insider Threat
+# ---------------------------------------------------------------------
+
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("---")
+st.subheader("Insider Threat (CERT r4.2)")
+
+with st.spinner("Loading insider threat stats..."):
+    from app.data import get_phase2_kpis
+    p2 = get_phase2_kpis()
+
+p2_col1, p2_col2, p2_col3, p2_col4 = st.columns(4)
+
+with p2_col1:
+    st.markdown(
+        f"""
+        <div class="kpi-card">
+            <div class="kpi-icon">👥</div>
+            <p class="kpi-label">Users Analyzed</p>
+            <p class="kpi-value">{format_compact(p2['total_users'])}</p>
+            <p class="kpi-delta">{format_compact(p2['total_events'])} activity events</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with p2_col2:
+    st.markdown(
+        f"""
+        <div class="kpi-card critical">
+            <div class="kpi-icon">🚩</div>
+            <p class="kpi-label">Flagged Users</p>
+            <p class="kpi-value">{p2['flagged_users']}</p>
+            <p class="kpi-delta">{p2['flagged_correctly']} confirmed malicious</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with p2_col3:
+    st.markdown(
+        f"""
+        <div class="kpi-card">
+            <div class="kpi-icon">🎯</div>
+            <p class="kpi-label">Recall</p>
+            <p class="kpi-value">{p2['recall']}%</p>
+            <p class="kpi-delta">{p2['flagged_correctly']} of {p2['malicious_truth']} caught</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with p2_col4:
+    st.markdown(
+        f"""
+        <div class="kpi-card">
+            <div class="kpi-icon">✅</div>
+            <p class="kpi-label">Precision</p>
+            <p class="kpi-value">{p2['precision']}%</p>
+            <p class="kpi-delta">Of flagged users</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+# ---------------------------------------------------------------------
 # Capabilities walkthrough
 # ---------------------------------------------------------------------
 
@@ -348,7 +415,7 @@ st.caption(
 st.markdown("---")
 st.subheader("Explore the dashboard")
 
-nav_col1, nav_col2, nav_col3 = st.columns(3)
+nav_col1, nav_col2, nav_col3, nav_col4 = st.columns(4)
 
 with nav_col1:
     st.markdown(
@@ -402,11 +469,32 @@ with nav_col3:
                 <p>Operational queue of top-priority events with filtering and CSV export.</p>
             </div>
         </a>
-        <a class="nav-card-link disabled">
-            <div class="nav-card coming-soon">
+        <a href="User_Risk" target="_self" class="nav-card-link">
+            <div class="nav-card">
                 <span class="nav-icon">🕵️</span>
-                <h3>Phase 2 — Insider Threat</h3>
-                <p>Coming Weeks 9-11. Behavioral analytics from CERT r4.2 with OCEAN psychometric features.</p>
+                <h3>User Risk (CERT)</h3>
+                <p>Insider threat scoring across 1,000 users with ML-driven risk leaderboard.</p>
+            </div>
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with nav_col4:
+    st.markdown(
+        """
+        <a href="Scenarios" target="_self" class="nav-card-link">
+            <div class="nav-card">
+                <span class="nav-icon">🎭</span>
+                <h3>Scenarios (CERT)</h3>
+                <p>Per-scenario insider threat detection — WikiLeaks, Job Hopper, Keylogger.</p>
+            </div>
+        </a>
+        <a href="User_Drilldown" target="_self" class="nav-card-link">
+            <div class="nav-card">
+                <span class="nav-icon">🔬</span>
+                <h3>User Drilldown (CERT)</h3>
+                <p>Investigate any single user — behavioral timeline, baseline comparison.</p>
             </div>
         </a>
         """,
